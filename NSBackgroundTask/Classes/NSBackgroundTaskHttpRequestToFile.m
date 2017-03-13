@@ -42,8 +42,15 @@
             
             
             NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
+                
                 NSURL *documentsDirectoryURL = [[NSFileManager defaultManager] URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:nil];
-                return [documentsDirectoryURL URLByAppendingPathComponent:[response suggestedFilename]];
+                
+                NSString *url = [NSString stringWithFormat:@"%@", [documentsDirectoryURL URLByAppendingPathComponent:[response suggestedFilename]]];
+                
+                NSLog(@"resolve url to save: %@ ", url);
+                
+                return [NSURL URLWithString:url];
+                
             } completionHandler:^(NSURLResponse *response, NSURL *filePath, NSError *error) {
                 
                 @try {
@@ -51,16 +58,20 @@
                         NSLog(@"dowload error %@", error);
                         [self.delegate onError: [NSString stringWithFormat:@"error download file: %@", [error description]]];
                     }else{
-                        NSLog(@"dowload error success!");
+                        NSLog(@"file download successful");
+                        NSLog(@"save file at URL %@ ", filePath);
                         
                         NSError *moveError;
+                        
+                        NSLog(@"move file to %@", destination);
+                        
                         [fileManager moveItemAtPath: [filePath absoluteString] toPath: destination error: &moveError];
                         
                         if(moveError){
                             NSLog(@"error dowload move %@ to %@ -> %@", [filePath absoluteString], destination, moveError);
                             [self.delegate onError: [NSString stringWithFormat:@"error move downloaded file: %@", [moveError description]]];
                         }else{
-                            NSLog(@"success dowload move %@ to %@", filePath, destination);
+                            NSLog(@"success dowload move %@ to %@", [filePath absoluteString], destination);
                             [self.delegate onComplete: _identifier];
                         }
                     }
