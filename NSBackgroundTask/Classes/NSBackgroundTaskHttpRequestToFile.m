@@ -32,7 +32,7 @@
                 
                 if(deleteError){
                     NSLog(@"error on delete file to %@ -> %@", destination, deleteError);
-                    [self.delegate onError: [deleteError description]];
+                    [self.delegate onError: [NSString stringWithFormat:@"error on delete file to %@ -> %@", destination, deleteError]];
                     return;
                 }
                 
@@ -49,15 +49,16 @@
                 @try {
                     if(error){
                         NSLog(@"dowload error %@", error);
-                        [self.delegate onError: [error description]];
+                        [self.delegate onError: [NSString stringWithFormat:@"error download file: %@", [error description]]];
                     }else{
                         NSLog(@"dowload error success!");
+                        
                         NSError *moveError;
-                        [fileManager moveItemAtPath: filePath toPath: destination error: &moveError];
+                        [fileManager moveItemAtPath: [filePath absoluteString] toPath: destination error: &moveError];
                         
                         if(moveError){
-                            NSLog(@"error dowload move %@ to %@ -> %@", filePath, destination, moveError);
-                            [self.delegate onError: [moveError description]];
+                            NSLog(@"error dowload move %@ to %@ -> %@", [filePath absoluteString], destination, moveError);
+                            [self.delegate onError: [NSString stringWithFormat:@"error move downloaded file: %@", [moveError description]]];
                         }else{
                             NSLog(@"success dowload move %@ to %@", filePath, destination);
                             [self.delegate onComplete: _identifier];
@@ -70,7 +71,7 @@
             
             [downloadTask resume];
         } @catch (NSException *exception) {
-            [self.delegate onError:[exception reason]];
+            [self.delegate onError:[NSString stringWithFormat:@"error resume download task: %@", [exception reason]]];
         }
 
 
