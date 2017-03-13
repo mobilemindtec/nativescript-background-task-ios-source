@@ -1,0 +1,17 @@
+use_frameworks!
+
+target 'NSBackgroundTask_Example' do
+  pod 'NSBackgroundTask', :path => '../'
+
+  target 'NSBackgroundTask_Tests' do
+    inherit! :search_paths
+
+    pod 'Specta'
+  pod 'Expecta'
+  pod 'FBSnapshotTestCase'
+  pod 'Expecta+Snapshots'
+  pod 'SSZipArchive'
+  pod 'AFNetworking'
+  pod 'GZIP'
+  end
+end

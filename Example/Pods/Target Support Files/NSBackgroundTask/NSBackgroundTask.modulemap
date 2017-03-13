@@ -1,0 +1,6 @@
+framework module NSBackgroundTask {
+  umbrella header "NSBackgroundTask-umbrella.h"
+
+  export *
+  module * { export * }
+}

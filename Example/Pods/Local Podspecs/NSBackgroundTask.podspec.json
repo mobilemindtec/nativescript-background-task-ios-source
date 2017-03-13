@@ -1,0 +1,35 @@
+{
+  "name": "NSBackgroundTask",
+  "version": "0.1.0",
+  "summary": "A short description of NSBackgroundTask.",
+  "description": "TODO: Add long description of the pod here.",
+  "homepage": "https://github.com/Ricardo Bocchi/NSBackgroundTask",
+  "license": {
+    "type": "MIT",
+    "file": "LICENSE"
+  },
+  "authors": {
+    "Ricardo Bocchi": "ricardo@mobilemind.com.br"
+  },
+  "source": {
+    "git": "https://github.com/Ricardo Bocchi/NSBackgroundTask.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "8.0"
+  },
+  "source_files": "NSBackgroundTask/Classes/**/*",
+  "resources": "*.{png}",
+  "requires_arc": true,
+  "dependencies": {
+    "SSZipArchive": [
+
+    ],
+    "AFNetworking": [
+
+    ],
+    "GZIP": [
+
+    ]
+  }
+}
