@@ -28,8 +28,12 @@ PODS:
   - NSBackgroundTask (0.1.0):
     - AFNetworking
     - GZIP
+    - sqlite3
     - SSZipArchive
   - Specta (1.0.6)
+  - sqlite3 (3.17.0):
+    - sqlite3/common (= 3.17.0)
+  - sqlite3/common (3.17.0)
   - SSZipArchive (1.7)
 
 DEPENDENCIES:
@@ -40,6 +44,7 @@ DEPENDENCIES:
   - GZIP
   - NSBackgroundTask (from `../`)
   - Specta
+  - sqlite3
   - SSZipArchive
 
 EXTERNAL SOURCES:
@@ -52,10 +57,11 @@ SPEC CHECKSUMS:
   Expecta+Snapshots: dcff217eef506dabd6dfdc7864ea2da321fafbb8
   FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
   GZIP: f8beb59597f651e6970a45b816508a9c6d700b77
-  NSBackgroundTask: 8940dcacca22f1d420cc956bdb72a2e679abbf11
+  NSBackgroundTask: 9d6a369f34a5f0b832ba9a85418496a82f6563ff
   Specta: f506f3a8361de16bc0dcf3b17b75e269072ba465
+  sqlite3: 3675836c3d675e606507595cf4fd65066b9e11f2
   SSZipArchive: 63f8e11cfcc33e03e4cd666b4359ea8bd6facd0c
 
-PODFILE CHECKSUM: 06f177fe8985b1eec7043291ea5d904d0bb4792f
+PODFILE CHECKSUM: 6c02ea82b5d08d2370e124cb39f9206e436670d6
 
 COCOAPODS: 1.2.0

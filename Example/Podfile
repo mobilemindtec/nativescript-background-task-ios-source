@@ -13,5 +13,6 @@ target 'NSBackgroundTask_Example' do
   pod 'SSZipArchive'
   pod 'AFNetworking'
   pod 'GZIP'
+  pod 'sqlite3'
   end
 end

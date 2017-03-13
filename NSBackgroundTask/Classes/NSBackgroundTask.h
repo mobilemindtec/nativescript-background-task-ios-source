@@ -172,3 +172,33 @@
 @end
 
 
+
+// ** NSQuery
+
+@interface NSQuery : NSObject{
+    
+}
+
+@property (nonatomic, retain) NSString *query;
+@property (nonatomic, retain) NSString *insertQuery;
+@property (nonatomic, retain) NSString *updateQuery;
+@property (nonatomic, retain) NSMutableArray *params;
+@property (nonatomic, retain) NSString *tableName;
+@property (nonatomic, retain) NSString *updateKey;
+@property (nonatomic, retain) NSString *updateKeyValue;
+
+@end
+
+@interface NSDbBatchTask : NSObject{
+    NSMutableArray *_queries;
+    NSString *_dbPath;
+}
+
+
+@property (nonatomic, retain) id<NSBackgroundTaskCompleteCallback> delegate;
+
+-(id) initWithDbPath:(NSString *) dbPath;
+-(void) addQuery: (NSQuery *) query;
+-(void) runTask;
+
+@end

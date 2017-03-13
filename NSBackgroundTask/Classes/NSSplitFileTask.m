@@ -29,7 +29,6 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        BOOL error = false;
         NSFileManager *fileManager = [NSFileManager defaultManager];
         
         
@@ -40,8 +39,7 @@
                 if(![fileManager fileExistsAtPath: splitFile.fileSrc]){
                     NSLog(@"file %@ not found to split", splitFile.fileSrc);
                     [self.delegate onError: [NSString stringWithFormat: @"file %@ not found to split", splitFile.fileSrc]];
-                    error = true;
-                    break;
+                    return;
                 }
                 
                 NSData *data = [fileManager contentsAtPath: splitFile.fileSrc];
@@ -82,8 +80,7 @@
                         if(deleteError){
                             NSLog(@"error on delete file %@ -> %@", partPathName, deleteError);
                             [self.delegate onError: [deleteError description]];
-                            error = true;
-                            break;
+                            return;
                         }
                     }
                     
@@ -93,8 +90,7 @@
                 }
             }
             
-            if(!error)
-                [self.delegate onComplete: _splitFiles];
+            [self.delegate onComplete: _splitFiles];
             
         } @catch (NSException *exception) {
             NSLog(@"split file error %@", exception);

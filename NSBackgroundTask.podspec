@@ -47,5 +47,5 @@ TODO: Add long description of the pod here.
     s.dependency 'SSZipArchive'
     s.dependency 'AFNetworking'
     s.dependency 'GZIP'
-
+    s.dependency 'sqlite3'
 end

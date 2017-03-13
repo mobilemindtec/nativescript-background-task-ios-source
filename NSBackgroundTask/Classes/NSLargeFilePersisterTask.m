@@ -29,15 +29,13 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        BOOL error = false;
        
         for (NSLargeFile *largeFile in _largeFiles) {
             
             
             if(!largeFile.fileSrc && !largeFile.image){
                 [self.delegate onError: @"set fileSrc or image to large file"];
-                error = true;
-                break;
+                return;
             }
             
             if([fileManager fileExistsAtPath:largeFile.fileDst]){
@@ -47,8 +45,7 @@
                 if(deleteError){
                     NSLog(@"error on delete file %@ -> %@", largeFile.fileDst, deleteError);
                     [self.delegate onError: [deleteError description]];
-                    error = true;
-                    break;
+                    return;
                 }
             }
             
@@ -76,8 +73,7 @@
                 
                 if(![fileManager fileExistsAtPath:largeFile.fileSrc]){
                     [self.delegate onError: [NSString stringWithFormat:@"file %@ not found to copy", largeFile.fileSrc]];
-                    error = true;
-                    break;
+                    return;
                 }
                 
                 NSError *copyError;
@@ -91,8 +87,7 @@
             }
         }
         
-        if(!error)
-            [self.delegate onComplete: nil];
+        [self.delegate onComplete: nil];
         
     });
 }
