@@ -158,6 +158,7 @@
     BOOL _useFormData;
     NSString *_url;
     NSMutableDictionary *_httpHeaders;
+    int _index;
 }
 
 @property (nonatomic, retain) id<NSBackgroundTaskCompleteCallback> delegate;
@@ -200,5 +201,13 @@
 -(id) initWithDbPath:(NSString *) dbPath;
 -(void) addQuery: (NSQuery *) query;
 -(void) runTask;
+
+@end
+
+@interface NSRestException : NSException
+
+@property (nonatomic, retain) NSString *content;
+@property (nonatomic, retain) NSString *message;
+@property int statusCode;
 
 @end

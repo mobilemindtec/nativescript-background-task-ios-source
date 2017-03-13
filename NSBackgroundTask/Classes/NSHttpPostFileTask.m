@@ -45,7 +45,18 @@
         
         @try {
             
-            for (NSHttpPostFile *postFile in _postFiles) {
+            _index = 0;
+            
+            NSOperation *postOperation = [NSBlockOperation blockOperationWithBlock:^{
+            
+                if(index >= [_postFiles     count]){
+                    [self.delegate onComplete:_postFiles];
+                    return;
+                }
+                
+                _index += 1;
+                
+                NSHttpPostFile *postFile = [_postFiles objectAtIndex:index];
                 
                 if(![fileManager fileExistsAtPath: postFile.fileSrc  ]){
                     NSLog(@"file %@ not found to post", postFile.fileSrc);
@@ -93,12 +104,58 @@
                 
                 [request setHTTPBody:postData];
                 
+                NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+                
+                
+                [[session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *r, NSError *error) {
+                    
+                    
+                    @try {
+                        NSString *requestReply = [[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding];
+                        
+                        NSHTTPURLResponse *response = (NSHTTPURLResponse *) r;
+                        
+                        NSLog(@"request status: %d, result: %@", response.statusCode, requestReply);
+                        
+                        if(error){
+                            [self.delegate onError:[NSString stringWithFormat:@" request error: %@", error]];
+                            return;
+                        }
+                        
+                        for(NSString *name in response.allHeaderFields){
+                            [postFile.responseHeaders setObject:name forKey:[response.allHeaderFields objectForKey: name]];
+                        }
+                        
+                        postFile.result = requestReply;
+                        
+                        
+                        if(response.statusCode != 200){
+                            
+                            NSString *reason = [NSHTTPURLResponse localizedStringForStatusCode:response.statusCode];
+                            NSRestException *rest = [[NSRestException alloc] initWithName:@"NSRestException" reason:reason userInfo:nil];
+                            rest.statusCode = response.statusCode;
+                            rest.content = requestReply;
+                            rest.message = reason;
+                            
+                            [self.delegate onError: rest];
+                        }
+                        
+                        [postOperation start];
+
+                    } @catch (NSException *exception) {
+                        [self.delegate onError: [exception reason]];
+                    }
+                    
+                    
+                }] resume];
+                
                 [postFile.json removeObjectForKey:postFile.jsonKey];
-            }
             
+                
+            }];
             
+            [postOperation start];
             
-            [self.delegate onComplete:_postFiles];
             
         } @catch (NSException *exception) {
             [self.delegate onError: [exception reason]];
