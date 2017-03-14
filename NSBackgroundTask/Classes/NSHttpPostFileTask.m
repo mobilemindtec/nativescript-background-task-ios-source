@@ -46,7 +46,7 @@
 }
 
 -(void) next{
-    if(_index >= [_postFiles     count]){
+    if(_index >= [_postFiles count]){
         [self.delegate onComplete:_postFiles];
         return;
     }
@@ -55,13 +55,10 @@
     
     _index++;
     
-    [self post:postFile :[NSBlockOperation blockOperationWithBlock:^{
-        NSLog(@"next call");
-        [self next];
-    }]];
+    [self post:postFile];
 }
 
--(void) post:(NSHttpPostFile *) postFile: (NSOperation* ) next{
+-(void) post:(NSHttpPostFile *) postFile{
 
     @try {
         NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -147,9 +144,10 @@
                     rest.message = reason;
                     
                     [self.delegate onError: rest];
+                    return;
                 }
                 
-                
+                [self next];
                 
             } @catch (NSException *exception) {
                 [self.delegate onError: [exception reason]];
