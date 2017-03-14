@@ -42,7 +42,7 @@ describe(@"these will fail", ^{
         NSLog(@"** temp path %@", tmpDirectory);
         
         splitFile.fileSrc = path;
-        splitFile.filePathPath = tmpDirectory;
+        splitFile.filePartPath = tmpDirectory;
         splitFile.filePartName = @"video";
         splitFile.filePartSufix = @"part";
         splitFile.filePartMaxSize = 1; // 2MB
@@ -79,7 +79,33 @@ describe(@"these will fail", ^{
         
         [task addLargeFile: largeFile1];
         [task addLargeFile: largeFile2];
+        //[task runTask];
+        
+    });
+    
+    it(@"post file", ^{
+        
+        
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"big_buck_bunny" ofType:@"mp4"];
+        
+        NSHttpPostFile *postFile = [[NSHttpPostFile alloc] initWithFileSrc: path jsonKey: @"video"];
+        
+        [postFile addJsonKey: @"name" value: @"jonh"];
+        
+        NSHttpPostFileTask *task = [[NSHttpPostFileTask alloc] initWithUrl: @"http://10.0.0.106:3000/post-form-data"];
+        
+        task.delegate = [[NSCallback alloc] init];
+        
+        [task addHeaderWithName: @"Content-Type" andValue: @"application/json"];
+        [task addHeaderWithName: @"X-Auth-Token" andValue: @"token"];
+        [task addPostFile: postFile];
+        
+        //without gzip 7813242 - with gzip 6855242
+        [task setUseGzip: true];
+        [task setUseFormData: false];
         [task runTask];
+        
+        [NSThread sleepForTimeInterval:15];
         
     });
     

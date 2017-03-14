@@ -78,7 +78,7 @@
         
         NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
         
-        [postFile.json setObject:postFile.jsonKey forKey:base64Encoded];
+        [postFile.json setObject:base64Encoded forKey:postFile.jsonKey];
         
         NSString *post = @"";
         
@@ -87,12 +87,19 @@
                 post = [NSString stringWithFormat:@"%@=%@&", key, [postFile.json objectForKey:key]];
             }
         }else{
-            for(NSString *key in postFile.json){
-                post = [NSString stringWithFormat:@"%@: %@, ", key, [postFile.json objectForKey:key]];
+            NSError *error;
+            NSData *jsonData = [NSJSONSerialization dataWithJSONObject:postFile.json
+                                                               options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                                 error:&error];
+            
+            if (!jsonData) {
+                NSLog(@"error create json: %@", error);
+                [self.delegate onError: [NSString stringWithFormat:@"error create json %@", error]];
+                return;
+            } else {
+                post = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
             }
             
-            post = [post substringWithRange:NSMakeRange(0, [post length] - 2)];
-            post = [NSString stringWithFormat:@"{%@}", post];
         }
         
         
