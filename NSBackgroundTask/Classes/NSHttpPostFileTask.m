@@ -37,9 +37,9 @@
         
         
         NSFileManager *fileManager = [NSFileManager defaultManager];
-        NSURL *url = [[NSURL alloc] initWithString: _url];
+        NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@", _url]];
         
-        NSURLRequest *request = [NSURLRequest requestWithURL:url];
+       // NSURLRequest *request = [NSURLRequest requestWithURL:url];
         
         NSLog(@"post data url %@", _url);
         
@@ -94,7 +94,7 @@
                 NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
                 
                 NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
-                [request setURL:[NSURL URLWithString:url]];
+                [request setURL: url];
                 [request setHTTPMethod:@"POST"];
                 [request setValue:postLength forHTTPHeaderField:@"Content-Length"];
                 
