@@ -64,7 +64,7 @@
                     NSLog(@"database bind text successful");
                     
                     if(sqlite3_step(stmt) != SQLITE_DONE){
-                        NSLog(@"error run query");
+                        NSLog(@"error run query %@: %s", q.query, sqlite3_errmsg(sqlitedb));
                         [self.delegate onError: [NSString stringWithFormat:@"error run query %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
                     }
