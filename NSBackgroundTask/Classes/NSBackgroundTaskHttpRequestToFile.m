@@ -59,19 +59,18 @@
                         [self.delegate onError: [NSString stringWithFormat:@"error download file: %@", [error description]]];
                     }else{
                         NSLog(@"file download successful");
-                        NSLog(@"save file at URL %@ ", filePath);
                         
                         NSError *moveError;
                         
                         NSLog(@"move file to %@", destination);
                         
-                        [fileManager moveItemAtPath: [filePath absoluteString] toPath: destination error: &moveError];
+                        [fileManager moveItemAtPath: filePath toPath: destination error: &moveError];
                         
                         if(moveError){
-                            NSLog(@"error dowload move %@ to %@ -> %@", [filePath absoluteString], destination, moveError);
-                            [self.delegate onError: [NSString stringWithFormat:@"error move downloaded file: %@", [moveError description]]];
+                            NSLog(@"error move dowload file %@ to %@ -> %@", filePath, destination, moveError);
+                            [self.delegate onError: [NSString stringWithFormat:@"error move download file: %@", [moveError description]]];
                         }else{
-                            NSLog(@"success dowload move %@ to %@", [filePath absoluteString], destination);
+                            NSLog(@"success dowload move %@ to %@", filePath, destination);
                             [self.delegate onComplete: _identifier];
                         }
                     }
