@@ -37,7 +37,7 @@
             sqlite3_stmt *stmt;
             
             if(sqlite3_open([_dbPath UTF8String], &sqlitedb) != SQLITE_OK){
-                [self.delegate onError: [NSString stringWithFormat:@"error open database %@", sqlite3_errmsg(sqlitedb)]];
+                [self.delegate onError: [NSString stringWithFormat:@"error open database %s", sqlite3_errmsg(sqlitedb)]];
                 return;
             }
             
@@ -50,7 +50,7 @@
                 if(q.query){
                     
                     if(!sqlite3_prepare(sqlitedb, [q.query UTF8String], -1, &stmt, NULL) != SQLITE_OK){
-                        [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %@", q.query, sqlite3_errmsg(sqlitedb)]];
+                        [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
                      
                     }
@@ -65,7 +65,7 @@
                     
                     if(sqlite3_step(stmt) != SQLITE_DONE){
                         NSLog(@"error run query");
-                        [self.delegate onError: [NSString stringWithFormat:@"error run query %@ - %@", q.query, sqlite3_errmsg(sqlitedb)]];
+                        [self.delegate onError: [NSString stringWithFormat:@"error run query %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
                     }
                     
@@ -78,7 +78,7 @@
                     NSString *sql = [NSString stringWithFormat:@"select id from %@ where %@ = ?", q.tableName, q.updateKey];
                     
                     if(!sqlite3_prepare(sqlitedb, [sql UTF8String], -1, &stmt, NULL) != SQLITE_OK){
-                        [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %@", q.query, sqlite3_errmsg(sqlitedb)]];
+                        [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
                         
                     }
@@ -99,7 +99,7 @@
                         [q.params addObject: [rowid stringValue]];
                         
                         if(!sqlite3_prepare(sqlitedb, [q.updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
-                            [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %@", q.updateQuery, sqlite3_errmsg(sqlitedb)]];
+                            [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.updateQuery, sqlite3_errmsg(sqlitedb)]];
                             return;
                             
                         }
@@ -113,7 +113,7 @@
                         NSLog(@"execute insert");
                         
                         if(!sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
-                            [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %@", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
+                            [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
                             return;
                             
                         }
@@ -125,7 +125,7 @@
                     }
                     
                     if(sqlite3_step(stmt) != SQLITE_DONE){
-                        [self.delegate onError: [NSString stringWithFormat:@"error run query %@ - %@", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
+                        [self.delegate onError: [NSString stringWithFormat:@"error run query %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
                         return;
                     }
 
