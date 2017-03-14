@@ -84,7 +84,7 @@
         
         if(_useFormData){
             for(NSString *key in postFile.json){
-                post = [NSString stringWithFormat:@"%@=%@&", key, [postFile.json objectForKey:key]];
+                post = [NSString stringWithFormat:@"%@%@=%@&", post, key, [postFile.json objectForKey:key]];
             }
         }else{
             NSError *error;
