@@ -99,7 +99,7 @@
 }
     
     @property (nonatomic, retain) NSString *fileSrc;
-    @property (nonatomic, retain) NSString *filePathPath;
+    @property (nonatomic, retain) NSString *filePartPath;
     @property (nonatomic, retain) NSString *filePartName;
     @property (nonatomic, retain) NSString *filePartSufix;
     @property (nonatomic, retain) NSMutableArray *fileParts;

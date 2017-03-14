@@ -64,12 +64,12 @@
                 for (int i = 0; i < partCount; i++) {
                     NSData *part = [data subdataWithRange:NSMakeRange(i * partSize, endPartSize)];
                     
-                    if(![splitFile.filePathPath hasSuffix:@"/"]){
-                        splitFile.filePathPath = [splitFile.filePathPath stringByAppendingString:@"/"];
+                    if(![splitFile.filePartPath hasSuffix:@"/"]){
+                        splitFile.filePartPath = [splitFile.filePartPath stringByAppendingString:@"/"];
                     }
                     
                     NSString *count = [NSString stringWithFormat:@"%d", i + 1];
-                    NSString *partPathName = [NSString stringWithFormat:@"%@%@_%@.%@", splitFile.filePathPath, splitFile.filePartName, count, splitFile.filePartSufix];
+                    NSString *partPathName = [NSString stringWithFormat:@"%@%@_%@.%@", splitFile.filePartPath, splitFile.filePartName, count, splitFile.filePartSufix];
                     
                     NSLog(@"save part file at %@", partPathName);
                     

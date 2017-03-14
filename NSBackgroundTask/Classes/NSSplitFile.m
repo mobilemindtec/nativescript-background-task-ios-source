@@ -10,7 +10,7 @@
 
 @implementation NSSplitFile
 
-    @synthesize fileSrc, filePathPath, filePartMaxSize, filePartName, filePartSufix, filePartCount, fileParts;
+    @synthesize fileSrc, filePartPath, filePartMaxSize, filePartName, filePartSufix, filePartCount, fileParts;
     
     -(id) init{
         
