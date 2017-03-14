@@ -49,12 +49,12 @@
             
             NSOperation *postOperation = [NSBlockOperation blockOperationWithBlock:^{
             
-                if(index >= [_postFiles     count]){
+                if(_index >= [_postFiles     count]){
                     [self.delegate onComplete:_postFiles];
                     return;
                 }
                 
-                NSHttpPostFile *postFile = [_postFiles objectAtIndex:index];
+                NSHttpPostFile *postFile = [_postFiles objectAtIndex:_index];
                 
                 _index += 1;
                 
