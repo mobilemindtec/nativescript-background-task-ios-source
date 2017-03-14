@@ -64,13 +64,13 @@
                         
                         NSLog(@"move file to %@", destination);
                         
-                        [fileManager moveItemAtPath: filePath toPath: destination error: &moveError];
+                        [fileManager moveItemAtPath: filePath.path toPath: destination error: &moveError];
                         
                         if(moveError){
-                            NSLog(@"error move dowload file %@ to %@ -> %@", filePath, destination, moveError);
+                            NSLog(@"error move dowload file %@ to %@ -> %@", filePath.path, destination, moveError);
                             [self.delegate onError: [NSString stringWithFormat:@"error move download file: %@", [moveError description]]];
                         }else{
-                            NSLog(@"success dowload move %@ to %@", filePath, destination);
+                            NSLog(@"success dowload move %@ to %@", filePath.path, destination);
                             [self.delegate onComplete: _identifier];
                         }
                     }
