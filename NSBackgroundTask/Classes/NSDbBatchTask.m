@@ -30,6 +30,7 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
+        NSLog(@"use db path %@", _dbPath);
         
         @try {
             sqlite3 *sqlitedb;
@@ -39,6 +40,8 @@
                 [self.delegate onError: [NSString stringWithFormat:@"error open database %@", sqlite3_errmsg(sqlitedb)]];
                 return;
             }
+            
+            NSLog(@"database open successful");
             
             for (NSQuery *q in _queries) {
                 
@@ -52,14 +55,20 @@
                      
                     }
                     
+                    NSLog(@"database prepate stmt successful");
+                    
                     for (NSString *value in q.params) {
                         sqlite3_bind_text(stmt, index++, [value UTF8String], -1, SQLITE_STATIC);
                     }
+                    
+                    NSLog(@"database bind text successful");
                     
                     if(sqlite3_step(stmt) != SQLITE_DONE){
                         [self.delegate onError: [NSString stringWithFormat:@"error run query %@ - %@", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
                     }
+                    
+                    NSLog(@"database execute stmt successful");
                     
                     sqlite3_reset(stmt);
                     
@@ -125,8 +134,7 @@
             }
             
             sqlite3_finalize(stmt);
-            sqlite3_close(sqlitedb);
-            
+            sqlite3_close(sqlitedb);            
             
             [self.delegate onComplete:nil];
             
