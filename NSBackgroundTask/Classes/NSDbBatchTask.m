@@ -143,7 +143,9 @@
                 [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
                 return;
 
-            }            
+            }
+            
+            NSLog(@"database commit transcation successful");
             
             [self.delegate onComplete:nil];
             
