@@ -54,9 +54,9 @@
                     return;
                 }
                 
-                _index += 1;
-                
                 NSHttpPostFile *postFile = [_postFiles objectAtIndex:index];
+                
+                _index += 1;
                 
                 if(![fileManager fileExistsAtPath: postFile.fileSrc  ]){
                     NSLog(@"file %@ not found to post", postFile.fileSrc);
