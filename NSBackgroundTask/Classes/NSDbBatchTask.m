@@ -32,9 +32,10 @@
         
         NSLog(@"use db path %@", _dbPath);
         
+        sqlite3 *sqlitedb;
+        sqlite3_stmt *stmt;
+
         @try {
-            sqlite3 *sqlitedb;
-            sqlite3_stmt *stmt;
             
             if(sqlite3_open([_dbPath UTF8String], &sqlitedb) != SQLITE_OK){
                 [self.delegate onError: [NSString stringWithFormat:@"error open database %s", sqlite3_errmsg(sqlitedb)]];
@@ -42,6 +43,10 @@
             }
             
             NSLog(@"database open successful");
+            
+            sqlite3_exec(sqlitedb, "BEGIN EXCLUSIVE TRANSACTION", 0, 0, 0);
+            
+            NSLog(@"database begin transcation successful");
             
             for (NSQuery *q in _queries) {
                 
@@ -134,13 +139,23 @@
                 
             }
             
-            sqlite3_finalize(stmt);
-            sqlite3_close(sqlitedb);
+            if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
+                [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
+                return;
+
+            }            
             
             [self.delegate onComplete:nil];
             
         } @catch (NSException *exception) {
             [self.delegate onError: [exception reason]];
+        } @finally {
+            
+            if(stmt)
+                sqlite3_finalize(stmt);
+            
+            if(sqlitedb)
+                sqlite3_close(sqlitedb);
         }
         
         
