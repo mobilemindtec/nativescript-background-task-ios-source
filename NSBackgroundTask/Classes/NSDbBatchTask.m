@@ -49,7 +49,7 @@
                 
                 if(q.query){
                     
-                    if(!sqlite3_prepare(sqlitedb, [q.query UTF8String], -1, &stmt, NULL) != SQLITE_OK){
+                    if(sqlite3_prepare(sqlitedb, [q.query UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                         [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
                      
@@ -77,7 +77,7 @@
                     
                     NSString *sql = [NSString stringWithFormat:@"select id from %@ where %@ = ?", q.tableName, q.updateKey];
                     
-                    if(!sqlite3_prepare(sqlitedb, [sql UTF8String], -1, &stmt, NULL) != SQLITE_OK){
+                    if(sqlite3_prepare(sqlitedb, [sql UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                         [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
                         
@@ -98,7 +98,7 @@
                         
                         [q.params addObject: [rowid stringValue]];
                         
-                        if(!sqlite3_prepare(sqlitedb, [q.updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
+                        if(sqlite3_prepare(sqlitedb, [q.updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.updateQuery, sqlite3_errmsg(sqlitedb)]];
                             return;
                             
@@ -112,7 +112,7 @@
                     }else {
                         NSLog(@"execute insert");
                         
-                        if(!sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
+                        if(sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
                             return;
                             
