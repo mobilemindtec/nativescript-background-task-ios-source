@@ -101,7 +101,7 @@
                         sqlite3_bind_int(stmt, 1, [q.updateKeyValue integerValue]);
                     }else if([@"doble" isEqualToString:q.updateKeyDataType]){
                         NSLog(@"use double update key data type");
-                        sqlite3_bind_int(stmt, 1, [q.updateKeyValue doubleValue]);
+                        sqlite3_bind_double(stmt, 1, [q.updateKeyValue doubleValue]);
                     }
 
                     NSNumber *rowid = 0;
@@ -119,7 +119,8 @@
                     
                         NSLog(@"execute update id %@", [rowid stringValue]);
                         
-                        [q.params addObject: [rowid stringValue]];
+                        NSMutableArray *params = [NSMutableArray arrayWithArray: q.params];
+                        [params addObject: [rowid stringValue]];
                         
                         if(sqlite3_prepare(sqlitedb, [q.updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.updateQuery, sqlite3_errmsg(sqlitedb)]];
@@ -127,7 +128,7 @@
                             
                         }
                         
-                        for (NSString *value in q.params) {
+                        for (NSString *value in params) {
                             sqlite3_bind_text(stmt, index++, [value UTF8String], -1, SQLITE_STATIC);
                         }
                         
@@ -154,7 +155,7 @@
 
                     sqlite3_reset(stmt);
                 }
-                 
+                
             }
             
             if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
