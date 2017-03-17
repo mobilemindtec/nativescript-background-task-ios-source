@@ -154,7 +154,7 @@
 
                     sqlite3_reset(stmt);
                 }
-                
+                 
             }
             
             if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
