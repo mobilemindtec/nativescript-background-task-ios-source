@@ -194,12 +194,14 @@
 @interface NSDbBatchTask : NSObject{
     NSMutableArray *_queries;
     NSString *_dbPath;
+    BOOL _debug;
 }
 
 
 @property (nonatomic, retain) id<NSBackgroundTaskCompleteCallback> delegate;
 
 -(id) initWithDbPath:(NSString *) dbPath;
+-(void) setDebug: (BOOL) debug;
 -(void) addQuery: (NSQuery *) query;
 -(void) runTask;
 

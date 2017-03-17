@@ -21,6 +21,9 @@
     return self;
 }
 
+-(void) setDebug:(BOOL)debug{
+    _debug = debug;
+}
 
 -(void) addQuery:(NSQuery *)query{
     [_queries addObject:query];
@@ -30,7 +33,8 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        NSLog(@"use db path %@", _dbPath);
+        if(_debug)
+            NSLog(@"use db path %@", _dbPath);
         
         sqlite3 *sqlitedb;
         sqlite3_stmt *stmt;
@@ -42,11 +46,13 @@
                 return;
             }
             
-            NSLog(@"database open successful");
+            if(_debug)
+                NSLog(@"database open successful");
             
             sqlite3_exec(sqlitedb, "BEGIN EXCLUSIVE TRANSACTION", 0, 0, 0);
             
-            NSLog(@"database begin transcation successful");
+            if(_debug)
+                NSLog(@"database begin transcation successful");
             
             for (NSQuery *q in _queries) {
                 
@@ -54,7 +60,8 @@
                 
                 if(q.query){
                     
-                    NSLog(@"execute normal query");
+                    if(_debug)
+                        NSLog(@"execute normal query");
                     
                     if(sqlite3_prepare(sqlitedb, [q.query UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                         [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
@@ -62,13 +69,15 @@
                      
                     }
                     
-                    NSLog(@"database prepate stmt successful");
+                    if(_debug)
+                        NSLog(@"database prepate stmt successful");
                     
                     for (NSString *value in q.params) {
                         sqlite3_bind_text(stmt, index++, [value UTF8String], -1, SQLITE_STATIC);
                     }
                     
-                    NSLog(@"database bind text successful");
+                    if(_debug)
+                        NSLog(@"database bind text successful");
                     
                     if(sqlite3_step(stmt) != SQLITE_DONE){
                         NSLog(@"error run query %@: %s", q.query, sqlite3_errmsg(sqlitedb));
@@ -76,7 +85,8 @@
                         return;
                     }
                     
-                    NSLog(@"database execute stmt successful");
+                    if(_debug)
+                        NSLog(@"database execute stmt successful");
                     
                     sqlite3_reset(stmt);
                     
@@ -85,7 +95,8 @@
                     
                     NSString *sql = [NSString stringWithFormat:@"select id from %@ where %@ = ?", q.tableName, q.updateKey];
                     
-                    NSLog(@"execute insert or update query: %@", sql);
+                    if(_debug)
+                        NSLog(@"execute insert or update query: %@", sql);
                     
                     if(sqlite3_prepare(sqlitedb, [sql UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                         [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
@@ -94,13 +105,16 @@
                     }
                     
                     if(!q.updateKeyDataType || [@"text" isEqualToString:q.updateKeyDataType]){
-                        NSLog(@"use text update key data type");
+                        if(_debug)
+                            NSLog(@"use text update key data type");
                         sqlite3_bind_text(stmt, 1, [q.updateKeyValue UTF8String], -1, SQLITE_STATIC);
                     }else if([@"int" isEqualToString:q.updateKeyDataType]){
-                        NSLog(@"use int update key data type");
+                        if(_debug)
+                            NSLog(@"use int update key data type");
                         sqlite3_bind_int(stmt, 1, [q.updateKeyValue integerValue]);
                     }else if([@"doble" isEqualToString:q.updateKeyDataType]){
-                        NSLog(@"use double update key data type");
+                        if(_debug)
+                            NSLog(@"use double update key data type");
                         sqlite3_bind_double(stmt, 1, [q.updateKeyValue doubleValue]);
                     }
 
@@ -108,16 +122,19 @@
                     
                     if(sqlite3_step(stmt) == SQLITE_ROW){
                         rowid = [NSNumber numberWithInt:sqlite3_column_int(stmt, 0)];
-                        NSLog(@"select rowid %d", rowid);
+                        if(_debug)
+                            NSLog(@"select rowid %d", rowid);
                     }else{
-                        NSLog(@"no rows in select");
+                        if(_debug)
+                            NSLog(@"no rows in select");
                     }
                     
                     sqlite3_reset(stmt);
                     
                     if(rowid > 0){
                     
-                        NSLog(@"execute update id %@", [rowid stringValue]);
+                        if(_debug)
+                            NSLog(@"execute update id %@", [rowid stringValue]);
                         
                         NSMutableArray *params = [NSMutableArray array];
                         
@@ -139,7 +156,8 @@
                         
                         
                     }else {
-                        NSLog(@"execute insert");
+                        if(_debug)
+                            NSLog(@"execute insert");
                         
                         if(sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
@@ -169,7 +187,8 @@
 
             }
             
-            NSLog(@"database commit transcation successful");
+            if(_debug)
+                NSLog(@"database commit transcation successful");
             
             [self.delegate onComplete:nil];
             
