@@ -119,7 +119,12 @@
                     
                         NSLog(@"execute update id %@", [rowid stringValue]);
                         
-                        NSMutableArray *params = [NSMutableArray arrayWithArray: q.params];
+                        NSMutableArray *params = [NSMutableArray array];
+                        
+                        for(NSString *it in q.params){
+                            [params addObject:it];
+                        }
+                        
                         [params addObject: [rowid stringValue]];
                         
                         if(sqlite3_prepare(sqlitedb, [q.updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
