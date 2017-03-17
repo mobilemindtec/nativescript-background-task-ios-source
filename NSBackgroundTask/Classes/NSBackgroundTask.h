@@ -187,6 +187,7 @@
 @property (nonatomic, retain) NSString *tableName;
 @property (nonatomic, retain) NSString *updateKey;
 @property (nonatomic, retain) NSString *updateKeyValue;
+@property (nonatomic, retain) NSString *updateKeyDataType;
 
 @end
 

@@ -11,7 +11,7 @@
 
 @implementation NSQuery
 
-@synthesize query, insertQuery, updateQuery, params, tableName, updateKey, updateKeyValue;
+@synthesize query, insertQuery, updateQuery, params, tableName, updateKey, updateKeyValue, updateKeyDataType;
 
 -(id) init{
     self = [super init];
