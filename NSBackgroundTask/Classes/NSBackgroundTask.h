@@ -195,6 +195,7 @@
     NSMutableArray *_queries;
     NSString *_dbPath;
     BOOL _debug;
+    BOOL _transactional;
 }
 
 
@@ -202,6 +203,7 @@
 
 -(id) initWithDbPath:(NSString *) dbPath;
 -(void) setDebug: (BOOL) debug;
+-(void) setTransactional:(BOOL) transactional;
 -(void) addQuery: (NSQuery *) query;
 -(void) runTask;
 

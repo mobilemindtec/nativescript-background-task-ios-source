@@ -25,6 +25,10 @@
     _debug = debug;
 }
 
+-(void) setTransactional:(BOOL)transactional{
+    _transactional = transactional;
+}
+
 -(void) addQuery:(NSQuery *)query{
     [_queries addObject:query];
 }
@@ -50,7 +54,12 @@
             if(_debug)
                 NSLog(@"database open successful");
             
-            sqlite3_exec(sqlitedb, "BEGIN EXCLUSIVE TRANSACTION", 0, 0, 0);
+            if(_transactional){
+                sqlite3_exec(sqlitedb, "BEGIN EXCLUSIVE TRANSACTION", 0, 0, 0);
+                NSLog(@"transactional operation");
+            }else{
+                NSLog(@"not transactional operation");
+            }
             
             if(_debug)
                 NSLog(@"database begin transcation successful");
@@ -59,23 +68,7 @@
                 
                 int index = 1;
                 
-                if(q.query){
-                    
-                    NSString *cacheKey = @"";
-                    
-                    for (NSString *value in q.params){
-                        cacheKey = [NSString stringWithFormat:@"%@#%@#", cacheKey, value];
-                    }
-                    
-                    // not process object more that one time
-                    if([cache objectForKey:cacheKey]){
-                        if(_debug)
-                            NSLog(@"object %@ already processed", q.tableName);
-                        continue;
-                    }
-                    
-                    [cache setValue:cacheKey forKey:cacheKey];
-                    
+                if(q.query){                                        
                     
                     if(_debug)
                         NSLog(@"execute normal query");
@@ -207,10 +200,12 @@
                 
             }
             
-            if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
-                [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
-                return;
+            if(_transactional){
+                if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
+                    [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
+                    return;
                 
+                }
             }
             
             if(_debug)
