@@ -99,6 +99,7 @@
                         NSLog(@"database execute stmt successful");
                     
                     sqlite3_reset(stmt);
+                    //sqlite3_finalize(stmt);
                     
                 }else {
                     
@@ -142,7 +143,7 @@
                     if(sqlite3_step(stmt) == SQLITE_ROW){
                         rowid = [NSNumber numberWithInt:sqlite3_column_int(stmt, 0)];
                         if(_debug)
-                            NSLog(@"select rowid %d", rowid);
+                            NSLog(@"select rowid %@", rowid);
                     }else{
                         if(_debug)
                             NSLog(@"no rows in select");
@@ -196,8 +197,8 @@
                     }
                     
                     sqlite3_reset(stmt);
+                    //sqlite3_finalize(stmt);
                 }
-                
             }
             
             if(_transactional){
