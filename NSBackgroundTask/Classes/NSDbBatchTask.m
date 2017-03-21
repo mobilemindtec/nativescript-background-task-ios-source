@@ -68,7 +68,7 @@
                 
                 int index = 1;
                 
-                if(q.query){                                        
+                if(q.query){
                     
                     if(_debug)
                         NSLog(@"execute normal query");
@@ -118,7 +118,7 @@
                         NSLog(@"execute insert or update query: %@ - %@", sql, q.updateKeyValue);
                     
                     if(sqlite3_prepare(sqlitedb, [sql UTF8String], -1, &stmt, NULL) != SQLITE_OK){
-                        [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
+                        [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", sql, sqlite3_errmsg(sqlitedb)]];
                         return;
                         
                     }
@@ -153,7 +153,7 @@
                     if(rowid > 0){
                         
                         if(_debug)
-                            NSLog(@"execute update %@ id %@", q.tableName, [rowid stringValue]);
+                            NSLog(@"execute update %@ id %@ keyid %@", q.tableName, [rowid stringValue], q.updateKeyValue);
                         
                         NSMutableArray *params = [NSMutableArray array];
                         
@@ -176,7 +176,7 @@
                         
                     }else {
                         if(_debug)
-                            NSLog(@"execute insert %@", q.tableName);
+                            NSLog(@"execute insert %@ keyid %@", q.tableName, q.updateKeyValue);
                         
                         if(sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
