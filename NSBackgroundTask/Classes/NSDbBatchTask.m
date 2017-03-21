@@ -161,10 +161,12 @@
                         
                         [params addObject: [rowid stringValue]];
                         
+                        NSString *updateQuery = [NSString stringWithFormat:@"%@ where %@ = ?", q.updateQuery, q.updateKey];
+                        
                         if(_debug){
                             NSLog(@"execute update %@ id %@ keyid %@", q.tableName, [rowid stringValue], q.updateKeyValue);
 
-                            NSString *args = [NSString stringWithFormat:@"SQL: %@ ARGS: ", q.updateQuery];
+                            NSString *args = [NSString stringWithFormat:@"SQL: %@ ARGS: ", updateQuery];
                             for (NSString *value in q.params) {
                                 args = [NSString stringWithFormat:@"%@%@, ", args, value];
                             }
@@ -172,8 +174,8 @@
                             NSLog(args);
                         }                
                         
-                        if(sqlite3_prepare(sqlitedb, [q.updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
-                            [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.updateQuery, sqlite3_errmsg(sqlitedb)]];
+                        if(sqlite3_prepare(sqlitedb, [updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
+                            [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", updateQuery, sqlite3_errmsg(sqlitedb)]];
                             return;
                             
                         }
