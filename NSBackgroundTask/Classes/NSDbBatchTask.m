@@ -153,8 +153,16 @@
                     
                     if(rowid > 0){
                         
-                        if(_debug)
+                        if(_debug){
                             NSLog(@"execute update %@ id %@ keyid %@", q.tableName, [rowid stringValue], q.updateKeyValue);
+
+                            NSString *args = [NSString stringWithFormat:@"SQL: %@ ARGS: ", q.updateKeyValue];
+                            for (NSString *value in q.params) {
+                                args = [NSString stringWithFormat:@"%@%@, ", args, value];
+                            }
+                            
+                            NSLog(args);
+                        }
                         
                         NSMutableArray *params = [NSMutableArray array];
                         
@@ -176,8 +184,16 @@
                         
                         
                     }else {
-                        if(_debug)
+                        if(_debug){
                             NSLog(@"execute insert %@ keyid %@", q.tableName, q.updateKeyValue);
+                            
+                            NSString *args = [NSString stringWithFormat:@"SQL: %@ ARGS: ", q.insertQuery];
+                            for (NSString *value in q.params) {
+                                args = [NSString stringWithFormat:@"%@%@, ", args, value];
+                            }
+                            
+                            NSLog(args);
+                        }
                         
                         if(sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
