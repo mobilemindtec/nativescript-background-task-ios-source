@@ -17,7 +17,7 @@
     
     _queries = [NSMutableArray array];
     _dbPath = dbPath;
-    
+    _debug = true;
     return self;
 }
 
@@ -38,7 +38,8 @@
         
         sqlite3 *sqlitedb;
         sqlite3_stmt *stmt;
-
+        NSMutableDictionary *cache = [NSMutableDictionary dictionary];
+        
         @try {
             
             if(sqlite3_open([_dbPath UTF8String], &sqlitedb) != SQLITE_OK){
@@ -60,13 +61,29 @@
                 
                 if(q.query){
                     
+                    NSString *cacheKey = @"";
+                    
+                    for (NSString *value in q.params){
+                        cacheKey = [NSString stringWithFormat:@"%@#%@#", cacheKey, value];
+                    }
+                    
+                    // not process object more that one time
+                    if([cache objectForKey:cacheKey]){
+                        if(_debug)
+                            NSLog(@"object %@ already processed", q.tableName);
+                        continue;
+                    }
+                    
+                    [cache setValue:cacheKey forKey:cacheKey];
+                    
+                    
                     if(_debug)
                         NSLog(@"execute normal query");
                     
                     if(sqlite3_prepare(sqlitedb, [q.query UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                         [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
                         return;
-                     
+                        
                     }
                     
                     if(_debug)
@@ -92,11 +109,20 @@
                     
                 }else {
                     
+                    // not process object more that one time
+                    NSString *cacheKey = [NSString stringWithFormat:@"%@#%@", q.tableName, q.updateKeyValue];
+                    if([cache objectForKey:cacheKey]){
+                        if(_debug)
+                            NSLog(@"object %@ already processed", q.tableName);
+                        continue;
+                    }
+                    
+                    [cache setValue:cacheKey forKey:cacheKey];
                     
                     NSString *sql = [NSString stringWithFormat:@"select id from %@ where %@ = ?", q.tableName, q.updateKey];
                     
                     if(_debug)
-                        NSLog(@"execute insert or update query: %@", sql);
+                        NSLog(@"execute insert or update query: %@ - %@", sql, q.updateKeyValue);
                     
                     if(sqlite3_prepare(sqlitedb, [sql UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                         [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.query, sqlite3_errmsg(sqlitedb)]];
@@ -117,7 +143,7 @@
                             NSLog(@"use double update key data type");
                         sqlite3_bind_double(stmt, 1, [q.updateKeyValue doubleValue]);
                     }
-
+                    
                     NSNumber *rowid = 0;
                     
                     if(sqlite3_step(stmt) == SQLITE_ROW){
@@ -132,9 +158,9 @@
                     sqlite3_reset(stmt);
                     
                     if(rowid > 0){
-                    
+                        
                         if(_debug)
-                            NSLog(@"execute update id %@", [rowid stringValue]);
+                            NSLog(@"execute update %@ id %@", q.tableName, [rowid stringValue]);
                         
                         NSMutableArray *params = [NSMutableArray array];
                         
@@ -157,7 +183,7 @@
                         
                     }else {
                         if(_debug)
-                            NSLog(@"execute insert");
+                            NSLog(@"execute insert %@", q.tableName);
                         
                         if(sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
@@ -175,7 +201,7 @@
                         [self.delegate onError: [NSString stringWithFormat:@"error run query %@ - %s", q.insertQuery, sqlite3_errmsg(sqlitedb)]];
                         return;
                     }
-
+                    
                     sqlite3_reset(stmt);
                 }
                 
@@ -184,7 +210,7 @@
             if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
                 [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
                 return;
-
+                
             }
             
             if(_debug)
