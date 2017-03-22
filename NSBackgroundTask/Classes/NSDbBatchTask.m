@@ -140,10 +140,10 @@
                         NSMutableArray *params = [NSMutableArray array];
                         
                         for(NSString *it in q.params){
-                            [params addObject:q.updateKeyValue];
+                            [params addObject:it];
                         }
                         
-                        [params addObject: [rowid stringValue]];
+                        [params addObject: q.updateKeyValue];
                         
                         NSString *updateQuery = [NSString stringWithFormat:@"%@ where %@ = ?", q.updateQuery, q.updateKey];
                         
