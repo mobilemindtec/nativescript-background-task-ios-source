@@ -39,10 +39,13 @@
 -(void) runTask{
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-       // NSURLRequest *request = [NSURLRequest requestWithURL:url];
+        if(_debug)
+            NSLog(@"post files started");
+
+        // NSURLRequest *request = [NSURLRequest requestWithURL:url];
         
         if(_debug)
-            NSLog(@"post data url %@. files to sent %@", _url, [_postFiles count]);
+            NSLog(@"post data url %@. files to sent %d", _url, [_postFiles count]);
         
         _index = -1;
         [self next];
