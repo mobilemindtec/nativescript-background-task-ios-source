@@ -42,7 +42,6 @@
         
         sqlite3 *sqlitedb;
         sqlite3_stmt *stmt;
-        NSMutableDictionary *cache = [NSMutableDictionary dictionary];
         
         @try {
             
@@ -54,12 +53,7 @@
             if(_debug)
                 NSLog(@"database open successful");
             
-            if(_transactional){
-                sqlite3_exec(sqlitedb, "BEGIN EXCLUSIVE TRANSACTION", 0, 0, 0);
-                NSLog(@"transactional operation");
-            }else{
-                NSLog(@"not transactional operation");
-            }
+            sqlite3_exec(sqlitedb, "BEGIN EXCLUSIVE TRANSACTION", 0, 0, 0);
             
             if(_debug)
                 NSLog(@"database begin transcation successful");
@@ -102,16 +96,6 @@
                     //sqlite3_finalize(stmt);
                     
                 }else {
-                    
-                    // not process object more that one time
-                    NSString *cacheKey = [NSString stringWithFormat:@"%@#%@", q.tableName, q.updateKeyValue];
-                    if([cache objectForKey:cacheKey]){
-                        if(_debug)
-                            NSLog(@"object %@ already processed", q.tableName);
-                        continue;
-                    }
-                    
-                    [cache setValue:cacheKey forKey:cacheKey];
                     
                     NSString *sql = [NSString stringWithFormat:@"select id from %@ where %@ = ?", q.tableName, q.updateKey];
                     
@@ -219,13 +203,11 @@
                 }
             }
             
-            if(_transactional){
                 if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
                     [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
                     return;
                 
                 }
-            }
             
             if(_debug)
                 NSLog(@"database commit transcation successful");
