@@ -140,7 +140,7 @@
                         NSMutableArray *params = [NSMutableArray array];
                         
                         for(NSString *it in q.params){
-                            [params addObject:it];
+                            [params addObject:q.updateKeyValue];
                         }
                         
                         [params addObject: [rowid stringValue]];
