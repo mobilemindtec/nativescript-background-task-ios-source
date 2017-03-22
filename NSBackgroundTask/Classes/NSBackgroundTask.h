@@ -159,12 +159,14 @@
     NSString *_url;
     NSMutableDictionary *_httpHeaders;
     int _index;
+    int _debug;
 }
 
 @property (nonatomic, retain) id<NSBackgroundTaskCompleteCallback> delegate;
 
 -(id) initWithUrl: (NSString *) url;
 -(void) setUseGzip: (BOOL) useGzip;
+-(void) setDebug: (BOOL) debug;
 -(void) setUseFormData: (BOOL) useFormData;
 -(void) addPostFile: (NSHttpPostFile *) postFile;
 -(void) addHeaderWithName: (NSString *) name andValue: (NSString *) value;

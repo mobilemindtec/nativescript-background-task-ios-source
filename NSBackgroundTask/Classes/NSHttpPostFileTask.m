@@ -20,6 +20,10 @@
     _userGzip = useGzip;
 }
 
+-(void) setDebug:(BOOL)debug{
+    _debug = debug;
+}
+
 -(void) setUseFormData:(BOOL) useFormData{
     _useFormData = useFormData;
 }
@@ -37,23 +41,27 @@
         
        // NSURLRequest *request = [NSURLRequest requestWithURL:url];
         
-        NSLog(@"post data url %@", _url);
+        if(_debug)
+            NSLog(@"post data url %@. files to sent %@", _url, [_postFiles count]);
         
-        _index = 0;
+        _index = -1;
         [self next];
         
     });
 }
 
 -(void) next{
-    if(_index >= [_postFiles count]){
+    if(++_index >= [_postFiles count]){
+        if(_debug)
+            NSLog(@"post files finished");
         [self.delegate onComplete:_postFiles];
         return;
     }
     
-    NSHttpPostFile *postFile = [_postFiles objectAtIndex:_index];
+    if(_debug)
+        NSLog(@"post file index %d", _index);
     
-    _index++;
+    NSHttpPostFile *postFile = [_postFiles objectAtIndex:_index];
     
     [self post:postFile];
 }
@@ -128,7 +136,10 @@
                 
                 NSHTTPURLResponse *response = (NSHTTPURLResponse *) r;
                 
-                NSLog(@"request status: %d, result: %@", response.statusCode, requestReply);
+                if(_debug)
+                    NSLog(@"request status: %d, result: %@", response.statusCode, requestReply);
+                else
+                    NSLog(@"request status: %d", response.statusCode);
                 
                 if(error){
                     [self.delegate onError:[NSString stringWithFormat:@" request error: %@", error]];
