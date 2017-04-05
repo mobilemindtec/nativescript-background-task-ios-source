@@ -104,6 +104,7 @@
 	_toFile = toFile;
 	_url = url;
     _identifier = identifier;
+    _httpHeaders = [NSMutableDictionary dictionary];
 	return self;
 }
 
