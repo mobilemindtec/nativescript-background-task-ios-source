@@ -38,14 +38,15 @@
     NSString *_url;
     NSString *_toFile;
     NSString *_identifier;
+    NSMutableDictionary *_httpHeaders;
 
 }
 
 @property (nonatomic, retain) id<NSBackgroundTaskCompleteCallback> delegate;
 
 -(void) runTask;
-
 -(id) initWithUrl:(NSString *) url toFile: (NSString *) toFile identifier: (NSString *) identifier;
+-(void) addHeaderWithName: (NSString *) name andValue: (NSString *) value;
 
 @end
 

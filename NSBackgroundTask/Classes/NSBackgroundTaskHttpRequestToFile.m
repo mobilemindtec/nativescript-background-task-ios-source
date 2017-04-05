@@ -7,6 +7,10 @@
 
 @synthesize delegate;
 
+-(void) addHeaderWithName:(NSString *)name andValue:(NSString *)value{
+    [_httpHeaders setValue:value forKey:name];
+}
+
 -(void) runTask{
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 	    
@@ -16,7 +20,13 @@
             NSFileManager *fileManager = [NSFileManager defaultManager];
             NSURL *url = [[NSURL alloc] initWithString: _url];
             
-            NSURLRequest *request = [NSURLRequest requestWithURL:url];
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+            
+            
+            for (NSString *key in _httpHeaders) {
+                [request addValue:[_httpHeaders objectForKey:key] forHTTPHeaderField:key];
+            }
+            
             
             NSString *destination = _toFile;
             

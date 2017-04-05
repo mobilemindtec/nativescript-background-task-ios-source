@@ -40,7 +40,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
         if(_debug)
-            NSLog(@"post files started");
+            NSLog(@"post files started  ");
 
         // NSURLRequest *request = [NSURLRequest requestWithURL:url];
         
