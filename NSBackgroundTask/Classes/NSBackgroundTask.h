@@ -39,6 +39,8 @@
     NSString *_toFile;
     NSString *_identifier;
     NSMutableDictionary *_httpHeaders;
+    BOOL _checkPartialDownload;
+    int _partBytesSize;
 
 }
 
