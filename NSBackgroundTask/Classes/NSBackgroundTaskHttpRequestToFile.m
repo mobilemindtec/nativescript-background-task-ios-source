@@ -33,7 +33,7 @@
 -(void) runTask{
 
     if(_checkPartialDownload){
-        supportsPartialDownload = [self checkServerSupportPartialDownload: ^(BOOL acceptRanges){
+        [self checkServerSupportPartialDownload: ^(BOOL acceptRanges){
 
             if(acceptRanges){
                 NSLog(@"server accepts partial download");
@@ -70,18 +70,20 @@
             }
 
             NSString *destination = _toFile;
-            NSString *filePartName = [NSString stringWithFormat: @"%@.%@", destination, ".part"];
+            NSString *filePartName = [NSString stringWithFormat: @"%@.%@", destination, @".part"];
             
             if(supportsPartialDownload){
 
                 unsigned long long fileSize = 0;
 
-                if([fileManager fileExistsAtPath: filePartName] == YES)
+                if([fileManager fileExistsAtPath: filePartName] == YES){
                     fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath: filePartName error:nil] fileSize];
+                }
                 
-                long rangeStart = fileSize;
-                long rangeEnd = fileSize + _partBytesSize;                
-                NSString *contentRange = [NSString stringWithFormat:@"bytes %@-%@/*", rangeStart, rangeEnd];                
+                long rangeStart = (long)fileSize;
+                long rangeEnd = (long)(fileSize + _partBytesSize);
+                
+                NSString *contentRange = [NSString stringWithFormat:@"bytes %ld-%ld/*", rangeStart, rangeEnd];
                 [request addValue:[_httpHeaders objectForKey:contentRange] forHTTPHeaderField:@"Content-Range"];
 
                 
@@ -101,7 +103,7 @@
                                 [self.delegate onError: [NSString stringWithFormat:@"Download file error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]]];
                             }else{
                               
-                                NSLog(@"Data received: %@", [data length]);
+                                NSLog(@"Data received: %u", [data length]);
 
                                 NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath: filePartName];
                                 [fileHandle seekToEndOfFile];
@@ -198,7 +200,7 @@
 	});
 }
 
--(BOOL) checkServerSupportPartialDownload:  (void (^)(BOOL acceptRanges))completionBlock {
+-(void) checkServerSupportPartialDownload:  (void (^)(BOOL acceptRanges))completionBlock {
 
     NSURL *url = [[NSURL alloc] initWithString: _url];
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
@@ -218,7 +220,7 @@
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
 
         if(error){
-            NSLog(@"get HEAD error %s. Status Code: %ld, Message: %s", error, (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]);
+            NSLog(@"get HEAD error %@. Status Code: %ld, Message: %@", error, (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]);
             completionBlock(false);
         } else {
 
