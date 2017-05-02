@@ -49,6 +49,8 @@
 -(void) runTask;
 -(id) initWithUrl:(NSString *) url toFile: (NSString *) toFile identifier: (NSString *) identifier;
 -(void) addHeaderWithName: (NSString *) name andValue: (NSString *) value;
+-(void) setCheckPartialDownload: (BOOL) checkPartialDownload;
+-(void) setPartBytesSize: (int) partBytesSize;
 
 @end
 
