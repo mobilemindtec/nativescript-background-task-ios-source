@@ -27,7 +27,8 @@
 }
 
 -(void) setPartBytesSize: (int) partBytesSize {
-    _partBytesSize = partBytesSize;
+    if(partBytesSize > 0)
+        _partBytesSize = partBytesSize;
 }
 
 -(void) setDebug: (BOOL) debug{
