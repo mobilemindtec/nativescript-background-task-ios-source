@@ -41,6 +41,7 @@
     NSMutableDictionary *_httpHeaders;
     BOOL _checkPartialDownload;
     int _partBytesSize;
+    BOOL _debug;
 
 }
 
@@ -51,6 +52,7 @@
 -(void) addHeaderWithName: (NSString *) name andValue: (NSString *) value;
 -(void) setCheckPartialDownload: (BOOL) checkPartialDownload;
 -(void) setPartBytesSize: (int) partBytesSize;
+-(void) setDebug: (BOOL) debug;
 
 @end
 

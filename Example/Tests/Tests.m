@@ -29,6 +29,7 @@ SpecBegin(InitialSpecs)
 
 describe(@"these will fail", ^{
     
+    /*
     it(@"load video", ^{
         
         NSSplitFileTask *task = [[NSSplitFileTask alloc] init];
@@ -108,38 +109,23 @@ describe(@"these will fail", ^{
         [NSThread sleepForTimeInterval:15];
         
     });
-    
-    /*
-    it(@"can do maths", ^{
-        expect(1).to.equal(2);
-    });
-
-    it(@"can read", ^{
-        expect(@"number").to.equal(@"string");
-    });
-    
-    it(@"will wait for 10 seconds and fail", ^{
-        waitUntil(^(DoneCallback done) {
-        
-        });
-    });
      */
-});
-
-describe(@"these will pass", ^{
     
-    it(@"can do maths", ^{
-        expect(1).beLessThan(23);
-    });
-    
-    it(@"can read", ^{
-        expect(@"team").toNot.contain(@"I");
-    });
-    
-    it(@"will wait and succeed", ^{
-        waitUntil(^(DoneCallback done) {
-            done();
-        });
+    it(@"get larg file", ^{
+        
+        NSString *tmpDirectory = NSTemporaryDirectory();
+        NSString *path = [NSString stringWithFormat:@"%@%@", tmpDirectory, @"newlargefile.pdf"];
+        
+        NSBackgroundTaskHttpRequestToFile *task = [[NSBackgroundTaskHttpRequestToFile alloc] initWithUrl: @"http://10.0.0.102:3000/partial-download" toFile: path identifier:@"nada"];
+        
+        task.delegate = [[NSCallback alloc] init];
+        
+        [task setCheckPartialDownload: true];
+        
+        [task runTask];
+        
+        [NSThread sleepForTimeInterval: 15];
+        
     });
 });
 

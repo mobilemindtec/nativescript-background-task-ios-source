@@ -30,15 +30,21 @@
     _partBytesSize = partBytesSize;
 }
 
+-(void) setDebug: (BOOL) debug{
+    _debug = debug;
+}
+
 -(void) runTask{
 
     if(_checkPartialDownload){
         [self checkServerSupportPartialDownload: ^(BOOL acceptRanges){
-
-            if(acceptRanges){
-                NSLog(@"server accepts partial download");
-            }else{
-                NSLog(@"server does not accepts partial download");
+            
+            if(_debug){
+                if(acceptRanges){
+                    NSLog(@"server accepts partial download");
+                }else{
+                    NSLog(@"server does not accepts partial download");
+                }
             }
 
             [self onDownload: acceptRanges];
@@ -78,16 +84,21 @@
 
                 if([fileManager fileExistsAtPath: filePartName] == YES){
                     fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath: filePartName error:nil] fileSize];
+                    if(_debug)
+                       NSLog(@"file part %@ does  exists. size: %llu", filePartName, fileSize);
+                }else{
+                    if(_debug)
+                        NSLog(@"file part %@ does not exists", filePartName);
                 }
                 
                 long rangeStart = (long)fileSize;
                 long rangeEnd = (long)(fileSize + _partBytesSize);
                 
                 NSString *contentRange = [NSString stringWithFormat:@"bytes %ld-%ld/*", rangeStart, rangeEnd];
-                [request addValue:[_httpHeaders objectForKey:contentRange] forHTTPHeaderField:@"Content-Range"];
+                [request addValue:contentRange forHTTPHeaderField:@"Content-Range"];
 
-                
-                NSLog(@"dowload file from %@", _url);
+                if(_debug)
+                    NSLog(@"dowload file from %@", _url);
 
                 [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:
                   ^(NSData * _Nullable data,
@@ -99,12 +110,27 @@
                             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
 
                             if(error){
-                                NSLog(@"dowload error %@", error);
-                                [self.delegate onError: [NSString stringWithFormat:@"Download file error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]]];
+                                
+                                NSString *errorMessage = [NSString stringWithFormat:@"Download file error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]];
+                                
+                                [self.delegate onError: errorMessage];
+                                NSLog(errorMessage);
+                                
+                            }else if ([httpResponse statusCode] != 200){
+                                
+                                NSString *errorMessage = [NSString stringWithFormat:@"Download file error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]];
+                                [self.delegate onError: errorMessage];
+                                NSLog(errorMessage);
+                                
                             }else{
-                              
-                                NSLog(@"Data received: %u", [data length]);
+                                
+                                if(_debug)
+                                    NSLog(@"Data received: %u", [data length]);
 
+                                if (![[NSFileManager defaultManager] fileExistsAtPath: filePartName]) {
+                                    [[NSFileManager defaultManager] createFileAtPath: filePartName contents:nil attributes:nil];
+                                }
+                                
                                 NSFileHandle *fileHandle = [NSFileHandle fileHandleForWritingAtPath: filePartName];
                                 [fileHandle seekToEndOfFile];
                                 [fileHandle writeData: data];
@@ -112,6 +138,18 @@
 
                                 if([data length] <= 0 || [data length] < _partBytesSize){
 
+                                    if([fileManager fileExistsAtPath: destination] == YES){
+                                        NSError *deleteError;
+                                        [fileManager removeItemAtPath: destination error:&deleteError];
+                                        
+                                        if(deleteError){
+                                            NSLog(@"error on delete file to %@ -> %@", destination, deleteError);
+                                            [self.delegate onError: [NSString stringWithFormat:@"error on delete file to %@ -> %@", destination, deleteError]];
+                                            return;
+                                        }
+                                    }
+
+                                    
                                     NSError *error = nil;
                                     [[NSFileManager defaultManager] moveItemAtPath:filePartName toPath:_toFile error:&error];
                                     
@@ -134,11 +172,15 @@
                 }] resume];                    
 
             }else{      
-
-                NSLog(@"dowload file from %@", _url);
+                
+                if(_debug)
+                    NSLog(@"dowload file from %@", _url);
 
                 if([fileManager fileExistsAtPath: destination ] == YES){
-                    NSLog(@"deleting destination file %@ before download..", destination);
+                    
+                    if(_debug)
+                        NSLog(@"deleting destination file %@ before download..", destination);
+                    
                     NSError *deleteError;
                     [fileManager removeItemAtPath: destination error:&deleteError];
                     
@@ -155,7 +197,8 @@
                     
                     NSString *url = [NSString stringWithFormat:@"%@", [documentsDirectoryURL URLByAppendingPathComponent:[response suggestedFilename]]];
                     
-                    NSLog(@"resolve url to save: %@ ", url);
+                    if(_debug)
+                        NSLog(@"resolve url to save: %@ ", url);
                     
                     return [NSURL URLWithString:url];
                     
@@ -166,11 +209,15 @@
                             NSLog(@"dowload error %@", error);
                             [self.delegate onError: [NSString stringWithFormat:@"error download file: %@", [error description]]];
                         }else{
-                            NSLog(@"file download successful");
+                            
+                            if(_debug)
+                                NSLog(@"file download successful");
+                            
                             
                             NSError *moveError;
                             
-                            NSLog(@"move file to %@", destination);
+                            if(_debug)
+                                NSLog(@"move file to %@", destination);
                             
                             [fileManager moveItemAtPath: filePath.path toPath: destination error: &moveError];
                             
@@ -178,7 +225,9 @@
                                 NSLog(@"error move dowload file %@ to %@ -> %@", filePath.path, destination, moveError);
                                 [self.delegate onError: [NSString stringWithFormat:@"error move download file: %@", [moveError description]]];
                             }else{
-                                NSLog(@"success dowload move %@ to %@", filePath.path, destination);
+                                if(_debug)
+                                    NSLog(@"success dowload move %@ to %@", filePath.path, destination);
+                                
                                 [self.delegate onComplete: _identifier];
                             }
                         }
@@ -220,7 +269,18 @@
         NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
 
         if(error){
-            NSLog(@"get HEAD error %@. Status Code: %ld, Message: %@", error, (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]);
+            if(_debug){
+                NSLog(@"get HEAD error %@. Status Code: %ld, Message: %@", error, (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]);
+            }
+            completionBlock(false);
+        
+        }else if ([httpResponse statusCode] != 200){
+            
+            if(_debug){
+                NSString *errorMessage = [NSString stringWithFormat:@"Execute HEAD error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]];
+                NSLog(errorMessage);
+            }
+            
             completionBlock(false);
         } else {
 
