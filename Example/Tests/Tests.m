@@ -9,6 +9,7 @@
 // https://github.com/Specta/Specta
 
 
+#import <AssetsLibrary/AssetsLibrary.h>
 
 
 @implementation NSCallback
@@ -110,7 +111,7 @@ describe(@"these will fail", ^{
         
     });
      */
-    
+    /*
     it(@"get larg file", ^{
         
         NSString *tmpDirectory = NSTemporaryDirectory();
@@ -127,6 +128,69 @@ describe(@"these will fail", ^{
         [NSThread sleepForTimeInterval: 15];
         
     });
+     */
+    
+    it(@"post file", ^{
+        
+        
+        
+        NSURL *url = [NSURL URLWithString: @"assets-library://asset/asset.JPG?id=500571F2-50B4-41F2-871F-4BCEE4F56155&ext=JPG"];
+        
+        
+        
+        ALAssetsLibraryAssetForURLResultBlock resultblock = ^(ALAsset *myasset) {
+            ALAssetRepresentation *rep = [myasset defaultRepresentation];
+            NSLog(@"step 1");
+            CGImageRef iref = [rep fullResolutionImage];
+            NSLog(@"step 2");
+            if (iref) {
+                NSLog(@"step 3");
+                UIImage *largeimage = [UIImage imageWithCGImage:iref];
+
+                NSData *webData = UIImageJPEGRepresentation(largeimage,1.0);
+                NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                NSLog(@"step 4");
+                NSString *documentsDirectory = [paths objectAtIndex:0];
+                NSString *localFilePath = [documentsDirectory stringByAppendingPathComponent:@"teste.jpg"];
+                NSLog(@"step 5");
+                [webData writeToFile:localFilePath atomically:YES];
+                NSLog(@"localFilePath.%@",localFilePath);
+                NSLog(@"step 6");
+
+                
+                NSHttpPostFile *postFile = [[NSHttpPostFile alloc] initWithFileSrc: localFilePath jsonKey: @"file"];
+                
+                [postFile addJsonKey: @"name" value: @"jonh"];
+                
+                NSHttpPostFileTask *task = [[NSHttpPostFileTask alloc] initWithUrl: @"http://10.0.0.102:3000"];
+                
+                task.delegate = [[NSCallback alloc] init];
+                
+                [task addPostFile: postFile];
+                
+                //without gzip 7813242 - with gzip 6855242
+                [task setUseGzip: true];
+                [task setUseFormData: true];
+                [task runTask];
+                
+                [NSThread sleepForTimeInterval:30];
+            }
+        };
+        
+        ALAssetsLibrary* assetslibrary = [[ALAssetsLibrary alloc] init];
+        [assetslibrary assetForURL:url
+                       resultBlock:resultblock
+                      failureBlock:nil];
+            
+        
+
+        
+       
+        
+        
+        
+    });
+    
 });
 
 SpecEnd

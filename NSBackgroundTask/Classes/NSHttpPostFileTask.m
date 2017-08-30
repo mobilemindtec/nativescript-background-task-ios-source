@@ -84,10 +84,14 @@
         NSData *data = [NSData dataWithContentsOfFile:postFile.fileSrc];
         
         if(_userGzip){
+            NSLog(@"applay gzip on data");
             data = [data gzippedData];
+        }else{
+            NSLog(@"not applay gzip on data");
         }
         
-        NSString *base64Encoded = [data base64EncodedStringWithOptions:0];
+        NSString *base64Encoded = [data base64EncodedStringWithOptions:NSDataBase64Encoding64CharacterLineLength];
+        base64Encoded = [base64Encoded stringByReplacingOccurrencesOfString:@"+" withString:@"%2B"];
         
         [postFile.json setObject:base64Encoded forKey:postFile.jsonKey];
         
@@ -114,7 +118,7 @@
         }
         
         
-        NSData *postData = [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+        NSData *postData =  [post dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
         NSString *postLength = [NSString stringWithFormat:@"%d", [postData length]];
         
         NSMutableURLRequest *request = [[NSMutableURLRequest alloc] init];
@@ -127,6 +131,8 @@
         }
         
         [request setHTTPBody:postData];
+        
+        NSLog(@"run post data");
         
         NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
         
