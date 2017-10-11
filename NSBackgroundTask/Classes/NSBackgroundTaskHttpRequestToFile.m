@@ -139,7 +139,7 @@
 
                                 if([data length] <= 0 || [data length] < _partBytesSize){
 
-                                    if(![self fileRemove: destination]){
+                                    if(![self fileRemove: _toFile]){
                                         return;
                                     }
                                     
@@ -313,13 +313,15 @@
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSError *moveError;
     
-    [fileManager moveItemAtPath: origin toPath: destination error: &moveError];
+    if([fileManager fileExistsAtPath: origin] == YES && [fileManager fileExistsAtPath: destination] == NO){
+        [fileManager moveItemAtPath: origin toPath: destination error: &moveError];
     
     
-    if(moveError){
-        NSLog(@"error move file %@ to %@ -> %@", origin, destination, moveError);
-        [self.delegate onError: [NSString stringWithFormat:@"error move download file: %@", [moveError description]]];
-        return false;
+        if(moveError){
+            NSLog(@"error move file %@ to %@ -> %@", origin, destination, moveError);
+            [self.delegate onError: [NSString stringWithFormat:@"error move file: %@", [moveError description]]];
+            return false;
+        }
     }
     
     return true;
