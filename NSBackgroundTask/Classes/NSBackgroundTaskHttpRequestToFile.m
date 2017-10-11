@@ -115,13 +115,13 @@
                                 NSString *errorMessage = [NSString stringWithFormat:@"Download file error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]];
                                 
                                 [self.delegate onError: errorMessage];
-                                NSLog(errorMessage);
+                                NSLog(@"%@", errorMessage);
                                 
                             }else if ([httpResponse statusCode] != 200){
                                 
                                 NSString *errorMessage = [NSString stringWithFormat:@"Download file error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]];
                                 [self.delegate onError: errorMessage];
-                                NSLog(errorMessage);
+                                NSLog(@"%@", errorMessage);
                                 
                             }else{
                                 
@@ -139,28 +139,14 @@
 
                                 if([data length] <= 0 || [data length] < _partBytesSize){
 
-                                    if([fileManager fileExistsAtPath: destination] == YES){
-                                        NSError *deleteError;
-                                        [fileManager removeItemAtPath: destination error:&deleteError];
-                                        
-                                        if(deleteError){
-                                            NSLog(@"error on delete file to %@ -> %@", destination, deleteError);
-                                            [self.delegate onError: [NSString stringWithFormat:@"error on delete file to %@ -> %@", destination, deleteError]];
-                                            return;
-                                        }
-                                    }
-
-                                    
-                                    NSError *error = nil;
-                                    [[NSFileManager defaultManager] moveItemAtPath:filePartName toPath:_toFile error:&error];
-                                    
-                                    if(error){
-                                        NSLog(@"error move file of %@ to %@", filePartName, _toFile);
-                                        [self.delegate onError: [NSString stringWithFormat:@"error move file of %@ to %@", filePartName, _toFile]];
+                                    if(![self fileRemove: destination]){
                                         return;
-                                    }  
-
-                                    [self.delegate onComplete: _identifier];
+                                    }
+                                    
+                                    if([self fileMove: filePartName to: _toFile]){
+                                        [self.delegate onComplete: _identifier];
+                                    }
+                                    
                                 }else{
                                     [self onDownload: true];
                                 }
@@ -176,20 +162,9 @@
                 
                 if(_debug)
                     NSLog(@"dowload file from %@", _url);
-
-                if([fileManager fileExistsAtPath: destination ] == YES){
-                    
-                    if(_debug)
-                        NSLog(@"deleting destination file %@ before download..", destination);
-                    
-                    NSError *deleteError;
-                    [fileManager removeItemAtPath: destination error:&deleteError];
-                    
-                    if(deleteError){
-                        NSLog(@"error on delete file to %@ -> %@", destination, deleteError);
-                        [self.delegate onError: [NSString stringWithFormat:@"error on delete file to %@ -> %@", destination, deleteError]];
-                        return;
-                    }                
+                
+                if(![self fileRemove: destination]){
+                    return;
                 }
 
                 NSURLSessionDownloadTask *downloadTask = [manager downloadTaskWithRequest:request progress:nil destination:^NSURL *(NSURL *targetPath, NSURLResponse *response) {
@@ -214,18 +189,15 @@
                             if(_debug)
                                 NSLog(@"file download successful");
                             
-                            
-                            NSError *moveError;
+                            if(![self fileRemove: destination]){
+                                return;
+                            }
                             
                             if(_debug)
                                 NSLog(@"move file to %@", destination);
                             
-                            [fileManager moveItemAtPath: filePath.path toPath: destination error: &moveError];
                             
-                            if(moveError){
-                                NSLog(@"error move dowload file %@ to %@ -> %@", filePath.path, destination, moveError);
-                                [self.delegate onError: [NSString stringWithFormat:@"error move download file: %@", [moveError description]]];
-                            }else{
+                            if([self fileMove: filePath.path to: destination]){
                                 if(_debug)
                                     NSLog(@"success dowload move %@ to %@", filePath.path, destination);
                                 
@@ -279,7 +251,7 @@
             
             if(_debug){
                 NSString *errorMessage = [NSString stringWithFormat:@"Execute HEAD error. Status Code: %ld, Message: %@", (long)[httpResponse statusCode], [NSString stringWithUTF8String:[data bytes]]];
-                NSLog(errorMessage);
+                NSLog(@"%@", errorMessage);
             }
             
             completionBlock(false);
@@ -306,6 +278,52 @@
     }] resume];
 
     
+}
+
+-(bool) fileRemove:(NSString*) fileToRemove {
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if([fileManager fileExistsAtPath: fileToRemove ] == YES){
+        
+        if(_debug)
+            NSLog(@"try delete file %@ ", fileToRemove);
+        
+        NSError *deleteError;
+        [fileManager removeItemAtPath: fileToRemove error:&deleteError];
+        
+        if(deleteError){
+            NSLog(@"error on delete file to %@ -> %@", fileToRemove, deleteError);
+            [self.delegate onError: [NSString stringWithFormat:@"error on delete file to %@ -> %@", fileToRemove, deleteError]];
+            return false;
+        } else {
+            if(_debug)
+                NSLog(@"file delete success: %@ ", fileToRemove);
+        }
+    } else {
+        if(_debug)
+            NSLog(@"file to remove not found: %@ ", fileToRemove);
+    }
+    return true;
+
+}
+
+-(bool) fileMove: (NSString*) origin to:(NSString*) destination{
+    
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    NSError *moveError;
+    
+    [fileManager moveItemAtPath: origin toPath: destination error: &moveError];
+    
+    
+    if(moveError){
+        NSLog(@"error move file %@ to %@ -> %@", origin, destination, moveError);
+        [self.delegate onError: [NSString stringWithFormat:@"error move download file: %@", [moveError description]]];
+        return false;
+    }
+    
+    return true;
+
 }
 
 @end
