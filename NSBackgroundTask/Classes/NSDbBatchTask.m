@@ -76,8 +76,9 @@
                     if(_debug)
                         NSLog(@"database prepate stmt successful");
                     
-                    for (NSString *value in q.params) {
-                        sqlite3_bind_text(stmt, index++, [value UTF8String], -1, SQLITE_STATIC);
+                    for (NSObject *value in q.params) {
+                        NSString *v = [NSString stringWithFormat:@"%@", value];
+                        sqlite3_bind_text(stmt, index++, [v UTF8String], -1, SQLITE_STATIC);
                     }
                     
                     if(_debug)
@@ -149,14 +150,14 @@
                         
                         if(_debug){
                             NSLog(@"execute update %@ id %@ keyid %@", q.tableName, [rowid stringValue], q.updateKeyValue);
-
+                            
                             NSString *args = [NSString stringWithFormat:@"SQL: %@ ARGS: ", updateQuery];
                             for (NSString *value in q.params) {
                                 args = [NSString stringWithFormat:@"%@%@, ", args, value];
                             }
                             
-                            NSLog(args);
-                        }                
+                            NSLog(@"%@", args);
+                        }
                         
                         if(sqlite3_prepare(sqlitedb, [updateQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
                             [self.delegate onError: [NSString stringWithFormat:@"error prepare stmt %@ - %s", updateQuery, sqlite3_errmsg(sqlitedb)]];
@@ -178,7 +179,7 @@
                                 args = [NSString stringWithFormat:@"%@%@, ", args, value];
                             }
                             
-                            NSLog(args);
+                            NSLog(@"%@", args);
                         }
                         
                         if(sqlite3_prepare(sqlitedb, [q.insertQuery UTF8String], -1, &stmt, NULL) != SQLITE_OK){
@@ -203,11 +204,11 @@
                 }
             }
             
-                if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
-                    [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
-                    return;
+            if (sqlite3_exec(sqlitedb, "COMMIT TRANSACTION", 0, 0, 0) != SQLITE_OK){
+                [self.delegate onError: [NSString stringWithFormat:@"error commit transaction %s", sqlite3_errmsg(sqlitedb)]];
+                return;
                 
-                }
+            }
             
             if(_debug)
                 NSLog(@"database commit transcation successful");
