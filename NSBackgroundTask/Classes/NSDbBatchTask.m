@@ -166,7 +166,8 @@
                         }
                         
                         for (NSString *value in params) {
-                            sqlite3_bind_text(stmt, index++, [value UTF8String], -1, SQLITE_STATIC);
+                            NSString *v = [NSString stringWithFormat:@"%@", value];
+                            sqlite3_bind_text(stmt, index++, [v UTF8String], -1, SQLITE_STATIC);
                         }
                         
                         
@@ -189,7 +190,8 @@
                         }
                         
                         for (NSString *value in q.params) {
-                            sqlite3_bind_text(stmt, index++, [value UTF8String], -1, SQLITE_STATIC);
+                            NSString *v = [NSString stringWithFormat:@"%@", value];
+                            sqlite3_bind_text(stmt, index++, [v UTF8String], -1, SQLITE_STATIC);
                         }
                         
                     }
